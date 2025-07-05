@@ -1,7 +1,15 @@
-name: Build
+name: SkyboxChanger BUILD
 
 on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
   workflow_dispatch:
+
+env:
+  BUILD_NUMBER: ${{ github.run_number }}
+  PROJECT_NAME: "SkyboxChanger"
 
 jobs:
   build_kvlib_linux:
@@ -23,6 +31,7 @@ jobs:
       with:
         name: kvlib_linux
         path: kvlib/build/linux/x86_64/release/kvlib.so
+
   build_kvlib_windows:
     runs-on: windows-latest
     steps:
@@ -42,6 +51,7 @@ jobs:
       with:
         name: kvlib_windows
         path: kvlib/build/windows/x64/release/kvlib.dll
+
   build_dotnet:
     runs-on: windows-latest
     needs: [build_kvlib_linux, build_kvlib_windows]
@@ -65,7 +75,7 @@ jobs:
           name: kvlib_windows
           path: ./kvlib_output
       - name: Build .NET
-        run: dotnet build
+        run: dotnet build -c Release
       - name: Copy kvlib to plugin
         run: cp ./kvlib_output/* ./build/addons/counterstrikesharp/plugins/SkyboxChanger
       - name: Upload artifact
@@ -74,9 +84,34 @@ jobs:
           name: SkyboxChanger
           path: ./build
 
-
-     
-
-
-
-
+  publish:
+    if: github.event_name == 'push'
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: [build_dotnet]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: SkyboxChanger
+        path: ./release
+    
+    - name: Zip
+      run: |
+        cd ./release
+        zip -r ../${{ env.PROJECT_NAME }}.zip .
+    
+    - name: Create Release
+      uses: ncipollo/release-action@v1.12.0
+      with:
+        artifacts: "${{ env.PROJECT_NAME }}.zip"
+        name: "SkyboxChanger v${{ env.BUILD_NUMBER }}"
+        tag: "build-${{ env.BUILD_NUMBER }}"
+        body: |
+          ### Installation
+          1. Extract the ZIP file to your CounterStrikeSharp plugins folder: **`csgo/addons/counterstrikesharp/plugins/`**
+          2. Configure your database credentials in **`csgo/addons/counterstrikesharp/configs/plugins/SkyboxChanger/SkyboxChanger.json`**
+          3. Restart your server
