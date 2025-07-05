@@ -1,11 +1,12 @@
 {
-  "menu.title": "Skybox",
-  "menu.instruction": "[W/S] Scroll - [D] Select - [A] Back - [Tab] Close",
-  "menu.setforall": "Set for all players",
-  "menu.setforself": "Set for yourself",
+  "menu.title": "SkyboxChanger",
+  "menu.skybox": "Select skybox",
   "menu.brightness": "Brightness",
-  "menu.tintcolor": "Tint Color",
+  "menu.tintcolor": "Tint color",
   "menu.defaultskybox": "Default",
-  "change.fail": "[{green}SkyboxChanger{default}] {red}Failed to change to {0}.",
-  "change.success": "[{green}SkyboxChanger{default}] {green}Success!"
+  "menu.back": "Back",
+  "menu.current": "Current",
+  "change.fail": "{lightred}[{SkyboxChanger}{lightred}] {red}Failed to change to {0}.",
+  "change.success": "{lightred}[{SkyboxChanger}{lightred}] {green}You have changed your skybox!",
+  "change.failed": "{lightred}[{SkyboxChanger}{lightred}] {red}Failed to change the skybox."
 }

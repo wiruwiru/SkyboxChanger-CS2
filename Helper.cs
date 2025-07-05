@@ -62,12 +62,15 @@ public class Helper
     else
     {
       var sky = Utilities.CreateEntityByName<CEnvSky>("env_sky");
-      sky.PrivateVScripts = "skyboxchanger_" + slot;
-      sky.DispatchSpawn();
-      Server.NextFrame(() =>
+      if (sky != null)
       {
-        ChangeSkybox(slot, null, 1f, Color.White);
-      });
+        sky.PrivateVScripts = "skyboxchanger_" + slot;
+        sky.DispatchSpawn();
+        Server.NextFrame(() =>
+        {
+          ChangeSkybox(slot, null, 1f, Color.White);
+        });
+      }
     }
   }
 
@@ -75,8 +78,18 @@ public class Helper
   {
     // materialptr2 : CMaterial2** = InfoForResourceTypeIMaterial2
 
+    var instance = SkyboxChanger.GetInstance();
+    if (!instance.EnvManager.SpawnedSkyboxes.ContainsKey(slot))
+    {
+      return false;
+    }
 
-    var sky = Utilities.GetEntityFromIndex<CEnvSky>(SkyboxChanger.GetInstance().EnvManager.SpawnedSkyboxes[slot])!;
+    var sky = Utilities.GetEntityFromIndex<CEnvSky>(instance.EnvManager.SpawnedSkyboxes[slot]);
+    if (sky == null)
+    {
+      return false;
+    }
+
     if (skybox != null)
     {
       var materialptr2 = FindMaterialByPath(skybox.Material);

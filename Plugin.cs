@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Memory;
@@ -11,22 +12,26 @@ using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
+using MenuManager;
 
 namespace SkyboxChanger;
 
 public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 {
   public override string ModuleName => "Skybox Changer";
-  public override string ModuleVersion => "1.3.2";
-  public override string ModuleAuthor => "samyyc";
+  public override string ModuleVersion => "1.3.3";
+  public override string ModuleAuthor => "samyyc (fork by luca.uy)";
 
   public SkyboxConfig Config { get; set; } = new();
-
-  public required MyMenuManager MenuManager { get; set; } = new();
 
   public required EnvManager EnvManager { get; set; } = new();
 
   public required Service Service { get; set; }
+
+  // MenuManager capability
+  private IMenuApi? _menuApi;
+  private readonly PluginCapability<IMenuApi?> _menuCapability = new("menu:nfcore");
+
   private static SkyboxChanger? _Instance { get; set; }
 
   public override unsafe void Load(bool hotReload)
@@ -124,8 +129,36 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
       EnvManager.OnPlayerLeave(slot);
       Service.Save(Utilities.GetPlayerFromSlot(slot)?.SteamID);
     });
-    InitializeMenuSystem(hotReload);
     Helper.Initialize();
+  }
+
+  public override void OnAllPluginsLoaded(bool hotReload)
+  {
+    _menuApi = _menuCapability.Get();
+
+    if (_menuApi == null)
+    {
+      Console.ForegroundColor = ConsoleColor.Red;
+      Console.WriteLine("[SkyboxChanger] CRITICAL ERROR: MenuManager API not found!");
+      Console.WriteLine("[SkyboxChanger] MenuManager is a required dependency for this plugin to function.");
+      Console.WriteLine("[SkyboxChanger] Please install MenuManagerCS2 from: https://github.com/NickFox007/MenuManagerCS2");
+      Console.WriteLine("[SkyboxChanger] Plugin will now unload automatically.");
+      Console.ResetColor();
+
+      Server.NextFrame(() =>
+      {
+        try
+        {
+          Server.ExecuteCommand($"css_plugins unload {ModuleName}");
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"[SkyboxChanger] Error during auto-unload: {ex.Message}");
+        }
+      });
+
+      return;
+    }
   }
 
   private void OnCheckTransmit(CCheckTransmitInfoList infoList)
@@ -133,44 +166,19 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
     EnvManager.OnCheckTransmit(infoList);
   }
 
-  private void InitializeMenuSystem(bool hotReload)
-  {
-    RegisterEventHandler<EventPlayerActivate>((@event, info) =>
-    {
-      if (@event.Userid != null)
-      {
-        MenuManager.AddPlayer(@event.Userid.Slot, new MyMenuPlayer { Player = @event.Userid, Buttons = 0 });
-      }
-      return HookResult.Continue;
-    });
-    RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
-    {
-      if (@event.Userid != null)
-      {
-        MenuManager.RemovePlayer(@event.Userid.Slot);
-      }
-      return HookResult.Continue;
-    });
-    RegisterListener<Listeners.OnMapEnd>(() =>
-    {
-      MenuManager.ClearPlayer();
-      Config.Skyboxs.Remove("");
-    });
-    RegisterListener<Listeners.OnTick>(() =>
-    {
-      MenuManager.Update();
-    });
-    if (hotReload)
-    {
-      MenuManager.ReloadPlayer();
-    }
-  }
-
   public override void Unload(bool hotReload)
   {
+    if (_menuApi != null)
+    {
+      foreach (var player in Utilities.GetPlayers().Where(p => p.IsValid))
+      {
+        _menuApi.CloseMenu(player);
+      }
+    }
+
     Service.Save();
     MemoryManager.Unload();
-
+    _menuApi = null;
   }
 
   public static SkyboxChanger GetInstance()
@@ -211,13 +219,50 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   [CommandHelper(0, "Change skybox", CommandUsage.CLIENT_ONLY)]
   public unsafe void SkyboxCommand(CCSPlayerController player, CommandInfo info)
   {
+    if (_menuApi == null)
+    {
+      player.PrintToChat($"[{ChatColors.Green}SkyboxChanger{ChatColors.Default}] {ChatColors.Red}MenuManager is not available!");
+      return;
+    }
+
     if (Config.MenuPermission != "" && Config.MenuPermission != null && !AdminManager.PlayerHasPermissions(player, [Config.MenuPermission]))
     {
       return;
     }
-    WasdMyMenu personalMenu = new WasdMyMenu { Title = Localizer["menu.title"] };
-    WasdMyMenu personalSkyboxSubmenu = new WasdMyMenu { Title = Localizer["menu.title"] };
-    personalMenu.AddOption(new SubMenuOption { Text = Localizer["menu.title"], NextMenu = personalSkyboxSubmenu });
+
+    ShowMainMenu(player);
+  }
+
+  private void ShowMainMenu(CCSPlayerController player)
+  {
+    if (_menuApi == null) return;
+
+    var mainMenu = _menuApi.GetMenu(Localizer["menu.title"]);
+
+    mainMenu.AddMenuOption(Localizer["menu.skybox"], (p, option) =>
+    {
+      ShowSkyboxMenu(p);
+    });
+
+    mainMenu.AddMenuOption(Localizer["menu.brightness"], (p, option) =>
+    {
+      ShowBrightnessMenu(p);
+    });
+
+    mainMenu.AddMenuOption(Localizer["menu.tintcolor"], (p, option) =>
+    {
+      ShowColorMenu(p);
+    });
+
+    mainMenu.Open(player);
+  }
+
+  private void ShowSkyboxMenu(CCSPlayerController player)
+  {
+    if (_menuApi == null) return;
+
+    var skyboxMenu = _menuApi.GetMenu(Localizer["menu.title"]);
+
     var skyboxes = Config.Skyboxs.ToList();
     skyboxes.RemoveAll(kv => kv.Key == "");
     if (Config.Skyboxs.ContainsKey(""))
@@ -225,57 +270,105 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
       var def = Config.Skyboxs[""];
       skyboxes.Insert(0, new KeyValuePair<string, Skybox>("", def));
     }
+
     skyboxes.ForEach(skybox =>
     {
       if (!Helper.PlayerHasPermission(player, skybox.Value.Permissions, skybox.Value.PermissionsOr)) return;
-      personalSkyboxSubmenu.AddOption(new SelectOption
+
+      skyboxMenu.AddMenuOption(skybox.Value.Name, (p, option) =>
       {
-        Text = skybox.Value.Name,
-        Select = (player, option, menu) =>
+        var result = Service.SetSkybox(p, skybox.Key);
+        if (result)
         {
-          var result = Service.SetSkybox(player, skybox.Key);
-          if (result)
-          {
-            player.PrintToChat(Localizer["change.success"]);
-          }
-          else
-          {
-            player.PrintToChat(Localizer["change.failed"]);
-          }
-          option.IsSelected = true; // reverse
+          p.PrintToChat(Localizer["change.success"]);
         }
+        else
+        {
+          p.PrintToChat(Localizer["change.failed"]);
+        }
+        _menuApi?.CloseMenu(p);
       });
     });
 
-    WasdMyMenu personalColorMenu = new WasdMyMenu { Title = Localizer["menu.tintcolor"] };
+    skyboxMenu.AddMenuOption("← " + Localizer["menu.back"], (p, option) =>
+    {
+      ShowMainMenu(p);
+    });
+
+    skyboxMenu.Open(player);
+  }
+
+  private void ShowBrightnessMenu(CCSPlayerController player)
+  {
+    if (_menuApi == null) return;
+
+    var brightnessMenu = _menuApi.GetMenu(Localizer["menu.brightness"]);
+
+    float currentBrightness = Service.GetPlayerBrightness(player);
+
+    brightnessMenu.AddMenuOption("-- (- 0.5)", (p, option) =>
+    {
+      float newValue = Math.Max(0.0f, currentBrightness - 0.5f);
+      Service.SetBrightness(p, newValue);
+      ShowBrightnessMenu(p);
+    });
+
+    brightnessMenu.AddMenuOption("- (- 0.1)", (p, option) =>
+    {
+      float newValue = Math.Max(0.0f, currentBrightness - 0.1f);
+      Service.SetBrightness(p, newValue);
+      ShowBrightnessMenu(p);
+    });
+
+    brightnessMenu.AddMenuOption($"{Localizer["menu.current"]}: {currentBrightness:F1}", (p, option) =>
+    {
+      // Do nothing, just display
+    });
+
+    brightnessMenu.AddMenuOption("+ (+ 0.1)", (p, option) =>
+    {
+      float newValue = Math.Min(10.0f, currentBrightness + 0.1f);
+      Service.SetBrightness(p, newValue);
+      ShowBrightnessMenu(p);
+    });
+
+    brightnessMenu.AddMenuOption("++ (+ 0.5)", (p, option) =>
+    {
+      float newValue = Math.Min(10.0f, currentBrightness + 0.5f);
+      Service.SetBrightness(p, newValue);
+      ShowBrightnessMenu(p);
+    });
+
+    brightnessMenu.AddMenuOption("← " + Localizer["menu.back"], (p, option) =>
+    {
+      ShowMainMenu(p);
+    });
+
+    brightnessMenu.Open(player);
+  }
+
+  private void ShowColorMenu(CCSPlayerController player)
+  {
+    if (_menuApi == null) return;
+
+    var colorMenu = _menuApi.GetMenu(Localizer["menu.tintcolor"]);
+
     foreach (var knownColor in (KnownColor[])Enum.GetValues(typeof(KnownColor)))
     {
       if (Color.FromKnownColor(knownColor).IsSystemColor) continue;
-      personalColorMenu.AddOption(new SelectOption
+
+      colorMenu.AddMenuOption(knownColor.ToString(), (p, option) =>
       {
-        Text = knownColor.ToString(),
-        Select = (player, option, menu) =>
-        {
-          Service.SetTintColor(player, Color.FromKnownColor(knownColor));
-        }
+        Service.SetTintColor(p, Color.FromKnownColor(knownColor));
+        _menuApi?.CloseMenu(p);
       });
-    };
+    }
 
-
-
-    SubMenuOption personalColor = new SubMenuOption { Text = Localizer["menu.tintcolor"], NextMenu = personalColorMenu };
-    personalMenu.AddOption(personalColor);
-
-    NumberOption personalBrightnessOption = new NumberOption
+    colorMenu.AddMenuOption("← " + Localizer["menu.back"], (p, option) =>
     {
-      Text = $"- {Localizer["menu.brightness"]} @value +",
-      Value = Service.GetPlayerBrightness(player),
-      OnUpdate = (player, option, menu, value) =>
-      {
-        Service.SetBrightness(player, value);
-      }
-    };
-    personalMenu.AddOption(personalBrightnessOption);
-    MenuManager.OpenMainMenu(player, personalMenu);
+      ShowMainMenu(p);
+    });
+
+    colorMenu.Open(player);
   }
 }

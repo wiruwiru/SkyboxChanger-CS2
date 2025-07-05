@@ -4,19 +4,40 @@
 ) ![](https://img.shields.io/github/license/samyycX/CS2-SkyboxChanger
 )
 
-A counterstrikesharp plugin allow player to change their own skybox material, color and brightness on every map dynamically and seamlessly.
+A CounterStrikeSharp plugin that allows players to change their own skybox material, color and brightness on every map dynamically and seamlessly.
 ![Preview](https://github.com/samyycX/CS2-SkyboxChanger/blob/master/preview.png)
 
-## How to use
-1. Download the plugin, decompress it to your counterstrikesharp plugin folder. A config file included default skyboxes will be generated automatically.
-2. Fill in your database credentials in config file.
-3. Edit the config file to add or delete skyboxes.
+## Installation
+Follow these steps to install the CS2-SkyboxChanger plugin:
 
-## Permissions
-- `@skybox/change` Allow the player to change their own skybox. You can change it in config by chaning `MenuPermission`.
+### Prerequisites
+1. Ensure you have the following dependencies installed on your server:
+   - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)
+   - [Metamod:Source](https://www.sourcemm.net/downloads.php/?branch=master)
+   - [MenuManagerCS2](https://github.com/NickFox007/MenuManagerCS2) (required dependency)
 
-## Command
-- `!sky / !skybox` Open the select menu. (Need permission)
+### Installation Steps
+1. Download the latest release of SkyboxChanger:
+   - Get [SkyboxChanger.zip](https://github.com/wiruwiru/SkyboxChanger-CS2/releases/latest) from the Releases section
+
+2. Extract the ZIP archive and upload the contents to your game server
+
+3. Start/Restart your server to:
+   - Generate the automatic configuration file (`config.json`)
+   - Verify the plugin loads correctly
+
+4. Configure the plugin:
+   - Edit the generated `config.json` file:
+     - Add your database credentials
+     - Customize available skyboxes (add/remove as needed)
+     - Adjust permissions if needed (default: `@skybox/change`)
+
+5. Finalize the installation:
+   - Restart your server to apply all changes
+   - Verify the plugin is working by using the `!sky` or `!skybox` command in-game (requires permission)
+
+## Commands
+- `!sky` or `!skybox` - Opens the skybox selection menu (requires `@skybox/change` permission)
 
 ## Configurations
-You can add your own skybox in the config file, there should be various examples in it. See [Wiki](https://github.com/samyycX/CS2-SkyboxChanger/wiki) for further information.
+You can customize available skyboxes and permissions in the `config.json` file. The default configuration includes several examples. For advanced configuration options, please check the [Wiki](https://github.com/samyycX/CS2-SkyboxChanger/wiki).

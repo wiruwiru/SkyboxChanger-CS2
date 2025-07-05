@@ -19,6 +19,7 @@
     </PackageReference>
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="MySQLConnector" Version="2.4.0" />
+    <Reference Include="MenuManagerApi"><HintPath>MenuManagerApi.dll</HintPath></Reference>
   </ItemGroup>
 
   <ItemGroup>
