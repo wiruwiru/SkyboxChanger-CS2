@@ -19,7 +19,7 @@ namespace SkyboxChanger;
 public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 {
   public override string ModuleName => "Skybox Changer";
-  public override string ModuleVersion => "1.3.3";
+  public override string ModuleVersion => "1.3.4";
   public override string ModuleAuthor => "samyyc (fork by luca.uy)";
 
   public SkyboxConfig Config { get; set; } = new();
@@ -27,6 +27,8 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   public required EnvManager EnvManager { get; set; } = new();
 
   public required Service Service { get; set; }
+
+  public required SpectatorSkyboxManager SpectatorManager { get; set; }
 
   // MenuManager capability
   private IMenuApi? _menuApi;
@@ -43,6 +45,9 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
     KvLib.SetDllImportResolver();
     MemoryManager.Load();
     _Instance = this;
+
+    SpectatorManager = new SpectatorSkyboxManager(this);
+
     RegisterListener<Listeners.OnServerPrecacheResources>(OnServerPrecacheResources);
     RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
     RegisterListener<Listeners.OnMapStart>((map) =>
@@ -61,15 +66,18 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
           EnvManager.DefaultMaterial = skybox.Material;
         }
       }
+      SpectatorManager.Initialize();
     });
     RegisterListener<Listeners.OnMapEnd>(() =>
     {
+      SpectatorManager.Shutdown();
       EnvManager.Shutdown();
       Service.Save();
       MemoryManager.RemoveCachedFactory();
     });
     RegisterListener<Listeners.OnServerPreFatalShutdown>(() =>
     {
+      SpectatorManager.Shutdown();
       Service.Save();
     });
     RegisterListener<Listeners.OnEntityCreated>((entity) =>
@@ -127,6 +135,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
     RegisterListener<Listeners.OnClientDisconnect>(slot =>
     {
       EnvManager.OnPlayerLeave(slot);
+      SpectatorManager.OnPlayerDisconnect(slot);
       Service.Save(Utilities.GetPlayerFromSlot(slot)?.SteamID);
     });
     Helper.Initialize();
@@ -176,6 +185,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
       }
     }
 
+    SpectatorManager.Shutdown();
     Service.Save();
     MemoryManager.Unload();
     _menuApi = null;
@@ -230,7 +240,47 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
       return;
     }
 
+    if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
+    {
+      return;
+    }
+
     ShowMainMenu(player);
+  }
+
+  [ConsoleCommand("css_skybox_restore")]
+  [CommandHelper(1, "Force restore player skybox", CommandUsage.CLIENT_AND_SERVER)]
+  [RequiresPermissions("@css/admin")]
+  public void RestoreSkyboxCommand(CCSPlayerController? caller, CommandInfo info)
+  {
+    if (info.ArgCount < 2)
+    {
+      info.ReplyToCommand("Usage: css_skybox_restore <player_name_or_slot>");
+      return;
+    }
+
+    var targetIdentifier = info.GetArg(1);
+    CCSPlayerController? targetPlayer = null;
+
+    if (int.TryParse(targetIdentifier, out int slot))
+    {
+      targetPlayer = Utilities.GetPlayerFromSlot(slot);
+    }
+
+    if (targetPlayer == null)
+    {
+      targetPlayer = Utilities.GetPlayers()
+        .FirstOrDefault(p => p.IsValid && p.PlayerName.Contains(targetIdentifier, StringComparison.OrdinalIgnoreCase));
+    }
+
+    if (targetPlayer == null)
+    {
+      info.ReplyToCommand($"Player '{targetIdentifier}' not found.");
+      return;
+    }
+
+    SpectatorManager.ForceRestorePlayer(targetPlayer.Slot);
+    info.ReplyToCommand($"Forced skybox restoration for {targetPlayer.PlayerName}");
   }
 
   private void ShowMainMenu(CCSPlayerController player)
@@ -261,6 +311,12 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   {
     if (_menuApi == null) return;
 
+    if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
+    {
+      player.PrintToChat(Localizer["spectator.cannot_change"]);
+      return;
+    }
+
     var skyboxMenu = _menuApi.GetMenu(Localizer["menu.title"]);
 
     var skyboxes = Config.Skyboxs.ToList();
@@ -286,7 +342,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
         {
           p.PrintToChat(Localizer["change.failed"]);
         }
-        _menuApi?.CloseMenu(p);
+        // _menuApi?.CloseMenu(p);
       });
     });
 
@@ -301,6 +357,12 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   private void ShowBrightnessMenu(CCSPlayerController player)
   {
     if (_menuApi == null) return;
+
+    if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
+    {
+      player.PrintToChat(Localizer["spectator.cannot_change"]);
+      return;
+    }
 
     var brightnessMenu = _menuApi.GetMenu(Localizer["menu.brightness"]);
 
@@ -351,6 +413,12 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   {
     if (_menuApi == null) return;
 
+    if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
+    {
+      player.PrintToChat(Localizer["spectator.cannot_change"]);
+      return;
+    }
+
     var colorMenu = _menuApi.GetMenu(Localizer["menu.tintcolor"]);
 
     foreach (var knownColor in (KnownColor[])Enum.GetValues(typeof(KnownColor)))
@@ -360,7 +428,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
       colorMenu.AddMenuOption(knownColor.ToString(), (p, option) =>
       {
         Service.SetTintColor(p, Color.FromKnownColor(knownColor));
-        _menuApi?.CloseMenu(p);
+        // _menuApi?.CloseMenu(p);
       });
     }
 

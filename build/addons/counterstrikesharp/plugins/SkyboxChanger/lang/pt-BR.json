@@ -1,11 +1,13 @@
 {
-  "menu.title": "Skybox",
-  "menu.instruction": "[W/S] Mover  - [D] Selecionar - [A] Voltar - [Tab] Fechar",
-  "menu.setforall": "Definir para todos os jogadores",
-  "menu.setforself": "Definir para si mesmo",
+  "menu.title": "SkyboxChanger",
+  "menu.skybox": "Selecionar skybox",
   "menu.brightness": "Brilho",
   "menu.tintcolor": "Cor do tom",
   "menu.defaultskybox": "Padrão",
-  "change.fail": "[{green}SkyboxChanger{default}] {red}Falha ao mudar para {0}.",
-  "change.success": "[{green}SkyboxChanger{default}] {green}Sucesso!"
+  "menu.back": "Voltar",
+  "menu.current": "Atual",
+  "change.fail": "{lightred}[{SkyboxChanger}{lightred}] {red}Falha ao mudar para {0}.",
+  "change.success": "{lightred}[{SkyboxChanger}{lightred}] {green}Você alterou sua skybox!",
+  "change.failed": "{lightred}[{SkyboxChanger}{lightred}] {red}Falha ao alterar a skybox.",
+  "spectator.cannot_change": "{lightred}[{SkyboxChanger}{lightred}] {red}Você não pode alterar sua skybox no modo espectador."
 }

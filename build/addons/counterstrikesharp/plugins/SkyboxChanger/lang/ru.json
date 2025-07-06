@@ -1,11 +1,13 @@
 {
-  "menu.title": "Небо",
-  "menu.instruction": "[W/S] - Вверх/Вниз [D] - Выбрать [A] - Назад [Tab] - Закрыть",
-  "menu.setforall": "Поставить для всех игроков",
-  "menu.setforself": "Поставить для себя",
+  "menu.title": "SkyboxChanger",
+  "menu.skybox": "Выбрать скайбокс",
   "menu.brightness": "Яркость",
-  "menu.tintcolor": "Оттенок цвета",
-  "menu.defaultskybox": "стандарт",
-  "change.fail": "[{green}Небо{default}] {red}Неудалось установить небо {0}.",
-  "change.success": "[{green}Небо{default}] {green}Успешно установлено!"
+  "menu.tintcolor": "Цвет оттенка",
+  "menu.defaultskybox": "По умолчанию",
+  "menu.back": "Назад",
+  "menu.current": "Текущий",
+  "change.fail": "{lightred}[{SkyboxChanger}{lightred}] {red}Ошибка при смене на {0}.",
+  "change.success": "{lightred}[{SkyboxChanger}{lightred}] {green}Вы изменили свой скайбокс!",
+  "change.failed": "{lightred}[{SkyboxChanger}{lightred}] {red}Ошибка при смене скайбокса.",
+  "spectator.cannot_change": "{lightred}[{SkyboxChanger}{lightred}] {red}Вы не можете изменить скайбокс в режиме наблюдателя."
 }

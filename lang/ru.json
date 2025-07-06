@@ -6,7 +6,8 @@
   "menu.defaultskybox": "По умолчанию",
   "menu.back": "Назад",
   "menu.current": "Текущий",
-  "change.fail": "{lightred}[{SkyboxChanger}{lightred}] {red}Не удалось изменить на {0}.",
+  "change.fail": "{lightred}[{SkyboxChanger}{lightred}] {red}Ошибка при смене на {0}.",
   "change.success": "{lightred}[{SkyboxChanger}{lightred}] {green}Вы изменили свой скайбокс!",
-  "change.failed": "{lightred}[{SkyboxChanger}{lightred}] {red}Не удалось изменить скайбокс."
+  "change.failed": "{lightred}[{SkyboxChanger}{lightred}] {red}Ошибка при смене скайбокса.",
+  "spectator.cannot_change": "{lightred}[{SkyboxChanger}{lightred}] {red}Вы не можете изменить скайбокс в режиме наблюдателя."
 }

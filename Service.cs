@@ -17,6 +17,11 @@ public class Service
 
   public bool SetSkybox(CCSPlayerController player, string index)
   {
+    if (_Plugin.SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
+    {
+      return false;
+    }
+
     _Storage.GetPlayerSkydata(player.SteamID).Skybox = index;
     Skybox skybox = _Plugin.Config.Skyboxs[index];
     if (skybox.Brightness != null)
@@ -42,12 +47,22 @@ public class Service
 
   public void SetBrightness(CCSPlayerController player, float brightness)
   {
+    if (_Plugin.SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
+    {
+      return;
+    }
+
     _Storage.GetPlayerSkydata(player.SteamID).Brightness = brightness;
     _Plugin.EnvManager.SetBrightness(player.Slot, brightness);
   }
 
   public void SetTintColor(CCSPlayerController player, Color color)
   {
+    if (_Plugin.SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
+    {
+      return;
+    }
+
     _Storage.GetPlayerSkydata(player.SteamID).Color = color.ToArgb();
     _Plugin.EnvManager.SetTintColor(player.Slot, color);
   }

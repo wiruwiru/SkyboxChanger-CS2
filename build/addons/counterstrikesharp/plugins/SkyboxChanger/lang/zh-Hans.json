@@ -1,11 +1,12 @@
 {
-  "menu.title": "Skybox",
-  "menu.instruction": "[W/S] 滚动 - [D] 选择 - [A] 返回 - [Tab] 关闭",
-  "menu.setforall": "为所有人设置",
-  "menu.setforself": "为自己设置",
+  "menu.title": "天空盒更换器",
+  "menu.skybox": "选择天空盒",
   "menu.brightness": "亮度",
-  "menu.tintcolor": "颜色",
+  "menu.tintcolor": "色调颜色",
   "menu.defaultskybox": "默认",
-  "change.fail": "[{green}SkyboxChanger{default}] {red}修改至{0}失败。",
-  "change.success": "[{green}SkyboxChanger{default}] {green}修改成功！"
+  "menu.back": "返回",
+  "menu.current": "当前",
+  "change.fail": "{lightred}[{SkyboxChanger}{lightred}] {red}切换到 {0} 失败。",
+  "change.success": "{lightred}[{SkyboxChanger}{lightred}] {green}你已更换天空盒！",
+  "change.failed": "{lightred}[{SkyboxChanger}{lightred}] {red}更换天空盒失败。"
 }
