@@ -301,11 +301,11 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
         var result = Service.SetSkybox(p, skybox.Key);
         if (result)
         {
-          p.PrintToChat(Localizer["change.success"]);
+          p.PrintToChat($"{Localizer["prefix"]} {Localizer["change.success"]}");
         }
         else
         {
-          p.PrintToChat(Localizer["change.failed"]);
+          p.PrintToChat($"{Localizer["prefix"]} {Localizer["change.failed"]}");
         }
         // _menuApi?.CloseMenu(p);
       });
