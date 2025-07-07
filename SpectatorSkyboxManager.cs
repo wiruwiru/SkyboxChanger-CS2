@@ -314,14 +314,4 @@ public class SpectatorSkyboxManager
             _isSpectatorMode.Remove(spectatorSlot);
         }
     }
-
-    public void ForceRestorePlayer(int slot)
-    {
-        if (_isSpectatorMode.ContainsKey(slot))
-        {
-            RestoreSpectatorSkybox(slot);
-            _spectatorToTarget.Remove(slot);
-            _isSpectatorMode.Remove(slot);
-        }
-    }
 }

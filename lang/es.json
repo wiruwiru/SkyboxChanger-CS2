@@ -1,4 +1,5 @@
 {
+  "prefix": "{lightred}[SkyboxChanger}{lightred]",
   "menu.title": "SkyboxChanger",
   "menu.skybox": "Seleccionar skybox",
   "menu.brightness": "Brillo",
@@ -6,8 +7,9 @@
   "menu.defaultskybox": "Predeterminado",
   "menu.back": "Atrás",
   "menu.current": "Actual",
-  "change.fail": "{lightred}[{SkyboxChanger}{lightred}] {red}Error al cambiar a {0}.",
-  "change.success": "{lightred}[{SkyboxChanger}{lightred}] {green}¡Has cambiado tu skybox!",
-  "change.failed": "{lightred}[{SkyboxChanger}{lightred}] {red}Error al cambiar el skybox.",
-  "spectator.cannot_change": "{lightred}[{SkyboxChanger}{lightred}] {red}No puedes cambiar tu skybox siendo espectador."
+  "menu.error": "Ocurrio un error y no es posible abrir el menú en este momento,",
+  "change.fail": "{red}Error al cambiar a {0}.",
+  "change.success": "{green}¡Has cambiado tu skybox!",
+  "change.failed": "{red}Error al cambiar el skybox.",
+  "spectator.cannot_change": "{red}No puedes cambiar tu skybox siendo espectador."
 }

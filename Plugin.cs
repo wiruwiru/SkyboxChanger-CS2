@@ -19,7 +19,7 @@ namespace SkyboxChanger;
 public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 {
   public override string ModuleName => "Skybox Changer";
-  public override string ModuleVersion => "1.3.4";
+  public override string ModuleVersion => "1.3.5";
   public override string ModuleAuthor => "samyyc (fork by luca.uy)";
 
   public SkyboxConfig Config { get; set; } = new();
@@ -231,7 +231,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   {
     if (_menuApi == null)
     {
-      player.PrintToChat($"[{ChatColors.Green}SkyboxChanger{ChatColors.Default}] {ChatColors.Red}MenuManager is not available!");
+      player.PrintToChat($"{Localizer["prefix"]} {Localizer["menu.error"]}");
       return;
     }
 
@@ -246,41 +246,6 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
     }
 
     ShowMainMenu(player);
-  }
-
-  [ConsoleCommand("css_skybox_restore")]
-  [CommandHelper(1, "Force restore player skybox", CommandUsage.CLIENT_AND_SERVER)]
-  [RequiresPermissions("@css/admin")]
-  public void RestoreSkyboxCommand(CCSPlayerController? caller, CommandInfo info)
-  {
-    if (info.ArgCount < 2)
-    {
-      info.ReplyToCommand("Usage: css_skybox_restore <player_name_or_slot>");
-      return;
-    }
-
-    var targetIdentifier = info.GetArg(1);
-    CCSPlayerController? targetPlayer = null;
-
-    if (int.TryParse(targetIdentifier, out int slot))
-    {
-      targetPlayer = Utilities.GetPlayerFromSlot(slot);
-    }
-
-    if (targetPlayer == null)
-    {
-      targetPlayer = Utilities.GetPlayers()
-        .FirstOrDefault(p => p.IsValid && p.PlayerName.Contains(targetIdentifier, StringComparison.OrdinalIgnoreCase));
-    }
-
-    if (targetPlayer == null)
-    {
-      info.ReplyToCommand($"Player '{targetIdentifier}' not found.");
-      return;
-    }
-
-    SpectatorManager.ForceRestorePlayer(targetPlayer.Slot);
-    info.ReplyToCommand($"Forced skybox restoration for {targetPlayer.PlayerName}");
   }
 
   private void ShowMainMenu(CCSPlayerController player)
@@ -313,7 +278,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 
     if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
     {
-      player.PrintToChat(Localizer["spectator.cannot_change"]);
+      player.PrintToChat($"{Localizer["prefix"]} {Localizer["spectator.cannot_change"]}");
       return;
     }
 
@@ -360,7 +325,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 
     if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
     {
-      player.PrintToChat(Localizer["spectator.cannot_change"]);
+      player.PrintToChat($"{Localizer["prefix"]} {Localizer["spectator.cannot_change"]}");
       return;
     }
 
@@ -415,7 +380,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 
     if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
     {
-      player.PrintToChat(Localizer["spectator.cannot_change"]);
+      player.PrintToChat($"{Localizer["prefix"]} {Localizer["spectator.cannot_change"]}");
       return;
     }
 
