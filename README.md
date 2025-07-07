@@ -1,11 +1,11 @@
-# CS2-SkyboxChanger
-![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/downloads/samyycX/CS2-SkyboxChanger/total
-) ![](https://img.shields.io/github/stars/samyycX/CS2-SkyboxChanger?style=flat&logo=github
-) ![](https://img.shields.io/github/license/samyycX/CS2-SkyboxChanger
+# SkyboxChanger-CS2
+![](https://img.shields.io/badge/build-passing-brightgreen) ![](https://img.shields.io/github/downloads/wiruwiru/CS2-SkyboxChanger/total
+) ![](https://img.shields.io/github/stars/wiruwiru/CS2-SkyboxChanger?style=flat&logo=github
+) ![](https://img.shields.io/github/license/wiruwiru/CS2-SkyboxChanger
 )
 
 A CounterStrikeSharp plugin that allows players to change their own skybox material, color and brightness on every map dynamically and seamlessly.
-![Preview](https://github.com/samyycX/CS2-SkyboxChanger/blob/master/preview.png)
+![Preview](https://github.com/user-attachments/assets/57b31334-696e-4ca6-8287-ed9b2121f1a3)
 
 ## Installation
 Follow these steps to install the CS2-SkyboxChanger plugin:
