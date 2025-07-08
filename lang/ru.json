@@ -1,15 +1,16 @@
 {
-  "prefix": "{lightred}[SkyboxChanger}{lightred]",
-  "menu.title": "Смена скайбокса",
+  "prefix": "{lightred}[{blue}SkyboxChanger{lightred}] {default}",
+  "no.permission": "{lightred}У вас нет разрешения на использование этой команды",
+  "menu.title": "SkyboxChanger",
   "menu.skybox": "Выбрать скайбокс",
   "menu.brightness": "Яркость",
   "menu.tintcolor": "Цвет оттенка",
   "menu.defaultskybox": "По умолчанию",
   "menu.back": "Назад",
   "menu.current": "Текущий",
-  "menu.error": "MenuManager недоступен!",
-  "change.fail": "{lightred}[SkyboxChanger}{lightred] {red}Не удалось изменить на {0}.",
-  "change.success": "{lightred}[SkyboxChanger}{lightred] {green}Вы изменили скайбокс!",
-  "change.failed": "{lightred}[SkyboxChanger}{lightred] {red}Не удалось изменить скайбокс.",
-  "spectator.cannot_change": "{lightred}[SkyboxChanger}{lightred] {red}Вы не можете изменить скайбокс в режиме наблюдателя."
+  "menu.error": "Произошла ошибка, и в данный момент невозможно открыть меню.",
+  "change.fail": "{red}Не удалось изменить на {0}.",
+  "change.success": "{green}Вы изменили свой скайбокс!",
+  "change.failed": "{red}Не удалось изменить скайбокс.",
+  "spectator.cannot_change": "{red}Вы не можете изменить скайбокс в режиме наблюдателя."
 }

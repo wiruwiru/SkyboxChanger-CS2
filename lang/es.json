@@ -1,5 +1,6 @@
 {
-  "prefix": "{lightred}[SkyboxChanger}{lightred]",
+  "prefix": "{lightred}[{blue}SkyboxChanger{lightred}] {default}",
+  "no.permission": "{lightred}No tienes permisos para utilizar este comando.",
   "menu.title": "SkyboxChanger",
   "menu.skybox": "Seleccionar skybox",
   "menu.brightness": "Brillo",

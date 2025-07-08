@@ -1,5 +1,6 @@
 {
-  "prefix": "{lightred}[SkyboxChanger}{lightred]",
+  "prefix": "{lightred}[{blue}SkyboxChanger{lightred}] {default}",
+  "no.permission": "{lightred}你没有权限使用此命令",
   "menu.title": "天空盒更换器",
   "menu.skybox": "选择天空盒",
   "menu.brightness": "亮度",
@@ -7,9 +8,9 @@
   "menu.defaultskybox": "默认",
   "menu.back": "返回",
   "menu.current": "当前",
-  "menu.error": "菜单管理器不可用！",
-  "change.fail": "{lightred}[SkyboxChanger}{lightred] {red}无法更改为 {0}。",
-  "change.success": "{lightred}[SkyboxChanger}{lightred] {green}你已更换天空盒！",
-  "change.failed": "{lightred}[SkyboxChanger}{lightred] {red}更换天空盒失败。",
-  "spectator.cannot_change": "{lightred}[SkyboxChanger}{lightred] {red}观察者模式下无法更换天空盒。"
+  "menu.error": "发生错误，目前无法打开菜单。",
+  "change.fail": "{red}切换到 {0} 失败。",
+  "change.success": "{green}你已更换天空盒！",
+  "change.failed": "{red}更换天空盒失败。",
+  "spectator.cannot_change": "{red}观察者模式下无法更换天空盒。"
 }

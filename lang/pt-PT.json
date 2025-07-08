@@ -1,5 +1,6 @@
 {
-  "prefix": "{lightred}[SkyboxChanger}{lightred]",
+  "prefix": "{lightred}[{blue}SkyboxChanger{lightred}] {default}",
+  "no.permission": "{lightred}Você não tem permissão para usar este comando",
   "menu.title": "SkyboxChanger",
   "menu.skybox": "Selecionar skybox",
   "menu.brightness": "Brilho",
@@ -7,9 +8,9 @@
   "menu.defaultskybox": "Padrão",
   "menu.back": "Voltar",
   "menu.current": "Atual",
-  "menu.error": "MenuManager não está disponível!",
-  "change.fail": "{lightred}[SkyboxChanger}{lightred] {red}Falha ao mudar para {0}.",
-  "change.success": "{lightred}[SkyboxChanger}{lightred] {green}Você alterou sua skybox!",
-  "change.failed": "{lightred}[SkyboxChanger}{lightred] {red}Falha ao alterar a skybox.",
-  "spectator.cannot_change": "{lightred}[SkyboxChanger}{lightred] {red}Você não pode alterar sua skybox no modo espectador."
+  "menu.error": "Ocorreu um erro e não é possível abrir o menu no momento.",
+  "change.fail": "{red}Falha ao mudar para {0}.",
+  "change.success": "{green}Você alterou seu skybox!",
+  "change.failed": "{red}Falha ao alterar o skybox.",
+  "spectator.cannot_change": "{red}Você não pode alterar seu skybox no modo espectador."
 }

@@ -237,6 +237,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 
     if (Config.MenuPermission != "" && Config.MenuPermission != null && !AdminManager.PlayerHasPermissions(player, [Config.MenuPermission]))
     {
+      player.PrintToChat($"{Localizer["prefix"]} {Localizer["no.permission"]}");
       return;
     }
 
