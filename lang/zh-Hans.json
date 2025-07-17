@@ -12,5 +12,6 @@
   "change.fail": "{red}切换到 {0} 失败。",
   "change.success": "{green}你已更换天空盒！",
   "change.failed": "{red}更换天空盒失败。",
-  "spectator.cannot_change": "{red}观察者模式下无法更换天空盒。"
+  "spectator.cannot_change": "{red}观察者模式下无法更换天空盒。",
+  "need.alive": "{red}你必须活着才能使用此命令。"
 }

@@ -12,5 +12,6 @@
   "change.fail": "{red}Falha ao mudar para {0}.",
   "change.success": "{green}Você alterou seu skybox!",
   "change.failed": "{red}Falha ao alterar o skybox.",
-  "spectator.cannot_change": "{red}Você não pode alterar seu skybox no modo espectador."
+  "spectator.cannot_change": "{red}Você não pode alterar seu skybox no modo espectador.",
+  "need.alive": "{red}Você deve estar vivo para usar este comando."
 }

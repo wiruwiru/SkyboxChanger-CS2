@@ -12,5 +12,6 @@
   "change.fail": "{red}Failed to change to {0}.",
   "change.success": "{green}You have changed your skybox!",
   "change.failed": "{red}Failed to change the skybox.",
-  "spectator.cannot_change": "{red}You cannot change your skybox while in spectator mode."
+  "spectator.cannot_change": "{red}You cannot change your skybox while in spectator mode.",
+  "need.alive": "{red}You must be alive to use this command."
 }

@@ -19,7 +19,7 @@ namespace SkyboxChanger;
 public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 {
   public override string ModuleName => "Skybox Changer";
-  public override string ModuleVersion => "1.3.5";
+  public override string ModuleVersion => "1.3.6";
   public override string ModuleAuthor => "samyyc (fork by luca.uy)";
 
   public SkyboxConfig Config { get; set; } = new();
@@ -243,6 +243,7 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 
     if (SpectatorManager.IsPlayerInSpectatorMode(player.Slot))
     {
+      player.PrintToChat($"{Localizer["prefix"]} {Localizer["need.alive"]}");
       return;
     }
 
