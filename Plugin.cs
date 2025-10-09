@@ -19,7 +19,7 @@ namespace SkyboxChanger;
 public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 {
   public override string ModuleName => "Skybox Changer";
-  public override string ModuleVersion => "1.3.8";
+  public override string ModuleVersion => "1.3.9";
   public override string ModuleAuthor => "samyyc (fork by luca.uy)";
 
   public SkyboxConfig Config { get; set; } = new();
@@ -52,6 +52,16 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
     RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
     RegisterListener<Listeners.OnMapStart>((map) =>
     {
+      Server.NextFrame(() =>
+      {
+        foreach (var fog in Utilities.FindAllEntitiesByDesignerName<CBaseEntity>("env_cubemap_fog"))
+        {
+          if (fog != null && fog.IsValid)
+          {
+            fog.Remove();
+          }
+        }
+      });
       if (!Config.Skyboxs.ContainsKey(""))
       {
         var skybox = Service.GetMapDefaultSkybox(map);
@@ -86,8 +96,10 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
       {
         if (entity.DesignerName == "env_cubemap_fog")
         {
-          CEnvCubemapFog fog = new CEnvCubemapFog(entity.Handle);
-          EnvManager.CubemapFogPointedSkyName = "[PR#]" + fog.SkyEntity;
+          // CEnvCubemapFog fog = new CEnvCubemapFog(entity.Handle);
+          // EnvManager.CubemapFogPointedSkyName = "[PR#]" + fog.SkyEntity;
+          entity.Remove();
+          return;
         }
         if (entity.DesignerName == "env_sky")
         {
