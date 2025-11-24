@@ -33,7 +33,14 @@ public class Storage
   {
     if (_PlayerStorage.TryGetValue(steamid, out var cachedData))
     {
-      return cachedData;
+      if (string.IsNullOrEmpty(cachedData.Skybox) && cachedData.Brightness == 1.0f && cachedData.Color == int.MaxValue)
+      {
+        _PlayerStorage.Remove(steamid);
+      }
+      else
+      {
+        return cachedData;
+      }
     }
 
     // Try to load from PlayerSettingsApi

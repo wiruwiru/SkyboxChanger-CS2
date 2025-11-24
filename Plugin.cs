@@ -145,12 +145,17 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
             EnvManager.SpawnedSkyboxes.Remove(slot);
           }
         }
-        EnvManager.InitializeSkyboxForPlayer(player);
-
-        // Load player settings
         if (player.AuthorizedSteamID != null)
         {
-          _ = LoadPlayerSettingsOnConnect(player.AuthorizedSteamID.SteamId64);
+          if (Service?._Storage != null)
+          {
+            Service._Storage.InvalidateCache(player.AuthorizedSteamID.SteamId64);
+          }
+          _ = LoadPlayerSettingsOnConnectAndInitialize(player.AuthorizedSteamID.SteamId64, player);
+        }
+        else
+        {
+          EnvManager.InitializeSkyboxForPlayer(player);
         }
       });
       return HookResult.Continue;
@@ -215,25 +220,57 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
     }
   }
 
-  private async Task LoadPlayerSettingsOnConnect(ulong steamId)
+  private async Task LoadPlayerSettingsOnConnectAndInitialize(ulong steamId, CCSPlayerController player)
   {
-    if (_settingsApi == null || steamId == 0 || Service == null || Service._Storage == null)
+    if (_settingsApi == null)
     {
+      Server.NextFrame(() => EnvManager.InitializeSkyboxForPlayer(player));
+      return;
+    }
+
+    if (steamId == 0)
+    {
+      Server.NextFrame(() => EnvManager.InitializeSkyboxForPlayer(player));
+      return;
+    }
+
+    if (Service == null || Service._Storage == null)
+    {
+      Server.NextFrame(() => EnvManager.InitializeSkyboxForPlayer(player));
       return;
     }
 
     try
     {
-      // Preload player settings to cache
-      var player = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.AuthorizedSteamID?.SteamId64 == steamId);
-      if (player != null)
+      var currentPlayer = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.AuthorizedSteamID?.SteamId64 == steamId);
+      if (currentPlayer != null)
       {
-        await Service._Storage.GetPlayerSkydataAsync(steamId);
+        var skyData = await Service._Storage.GetPlayerSkydataAsync(steamId);
+        Server.NextFrame(() =>
+        {
+          EnvManager.InitializeSkyboxForPlayer(currentPlayer);
+          Server.NextFrame(() =>
+          {
+            Server.NextFrame(() =>
+            {
+              var finalPlayer = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.AuthorizedSteamID?.SteamId64 == steamId);
+              if (finalPlayer != null && finalPlayer.IsValid)
+              {
+                Service.ApplyPlayerSettings(finalPlayer);
+              }
+            });
+          });
+        });
+      }
+      else
+      {
+        Server.NextFrame(() => EnvManager.InitializeSkyboxForPlayer(player));
       }
     }
     catch (Exception ex)
     {
       Logger.LogError($"[SkyboxChanger] Failed to load settings for player {steamId}: {ex.Message}");
+      Server.NextFrame(() => EnvManager.InitializeSkyboxForPlayer(player));
     }
   }
 
