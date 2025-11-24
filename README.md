@@ -15,6 +15,7 @@ Follow these steps to install the CS2-SkyboxChanger plugin:
    - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)
    - [Metamod:Source](https://www.sourcemm.net/downloads.php/?branch=master)
    - [MenuManagerCS2](https://github.com/NickFox007/MenuManagerCS2) (required dependency)
+   - [PlayerSettingsCS2](https://github.com/NickFox007/PlayerSettingsCS2/releases/latest) (required dependency)
 
 ### Installation Steps
 1. Download the latest release of SkyboxChanger:
@@ -28,7 +29,6 @@ Follow these steps to install the CS2-SkyboxChanger plugin:
 
 4. Configure the plugin:
    - Edit the generated `config.json` file:
-     - Add your database credentials
      - Customize available skyboxes (add/remove as needed)
      - Adjust permissions if needed (default: `@skybox/change`)
 

@@ -5,14 +5,14 @@ namespace SkyboxChanger;
 
 public class Service
 {
-  private Storage _Storage { get; set; }
+  public Storage _Storage { get; set; }
 
   private SkyboxChanger _Plugin { get; set; }
 
-  public Service(SkyboxChanger plugin, string host, int port, string user, string password, string database, string tablePrefix)
+  public Service(SkyboxChanger plugin, PlayerSettings.ISettingsApi? settingsApi)
   {
     _Plugin = plugin;
-    _Storage = new Storage(host, port, user, password, database, tablePrefix);
+    _Storage = new Storage(settingsApi);
   }
 
   public bool SetSkybox(CCSPlayerController player, string index)
@@ -22,12 +22,13 @@ public class Service
       return false;
     }
 
-    _Storage.GetPlayerSkydata(player.SteamID).Skybox = index;
+    var skyData = _Storage.GetPlayerSkydata(player.SteamID);
+    skyData.Skybox = index;
     Skybox skybox = _Plugin.Config.Skyboxs[index];
     if (skybox.Brightness != null)
     {
       _Plugin.EnvManager.SetBrightness(player.Slot, skybox.Brightness.Value);
-      _Storage.GetPlayerSkydata(player.SteamID).Brightness = skybox.Brightness.Value;
+      skyData.Brightness = skybox.Brightness.Value;
     }
     if (skybox.Color != null)
     {
@@ -39,9 +40,13 @@ public class Service
         var b = int.Parse(colorData[2]);
         var a = int.Parse(colorData[3]);
         _Plugin.EnvManager.SetTintColor(player.Slot, Color.FromArgb(a, r, g, b));
-        _Storage.GetPlayerSkydata(player.SteamID).Color = Color.FromArgb(a, r, g, b).ToArgb();
+        skyData.Color = Color.FromArgb(a, r, g, b).ToArgb();
       }
     }
+    
+    // Save immediately after change
+    _ = _Storage.SaveAsync(player.SteamID);
+    
     return _Plugin.EnvManager.SetSkybox(player.Slot, skybox);
   }
 
@@ -52,8 +57,12 @@ public class Service
       return;
     }
 
-    _Storage.GetPlayerSkydata(player.SteamID).Brightness = brightness;
+    var skyData = _Storage.GetPlayerSkydata(player.SteamID);
+    skyData.Brightness = brightness;
     _Plugin.EnvManager.SetBrightness(player.Slot, brightness);
+    
+    // Save immediately after change
+    _ = _Storage.SaveAsync(player.SteamID);
   }
 
   public void SetTintColor(CCSPlayerController player, Color color)
@@ -63,8 +72,12 @@ public class Service
       return;
     }
 
-    _Storage.GetPlayerSkydata(player.SteamID).Color = color.ToArgb();
+    var skyData = _Storage.GetPlayerSkydata(player.SteamID);
+    skyData.Color = color.ToArgb();
     _Plugin.EnvManager.SetTintColor(player.Slot, color);
+    
+    // Save immediately after change
+    _ = _Storage.SaveAsync(player.SteamID);
   }
 
   public Skybox? GetPlayerSkybox(CCSPlayerController player)

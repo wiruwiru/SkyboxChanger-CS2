@@ -13,13 +13,14 @@ using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
 using MenuManager;
+using PlayerSettings;
 
 namespace SkyboxChanger;
 
 public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
 {
   public override string ModuleName => "Skybox Changer";
-  public override string ModuleVersion => "1.3.9";
+  public override string ModuleVersion => "1.4.0";
   public override string ModuleAuthor => "samyyc (fork by luca.uy)";
 
   public SkyboxConfig Config { get; set; } = new();
@@ -33,6 +34,10 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   // MenuManager capability
   private IMenuApi? _menuApi;
   private readonly PluginCapability<IMenuApi?> _menuCapability = new("menu:nfcore");
+
+  // PlayerSettings capability
+  private ISettingsApi? _settingsApi;
+  private readonly PluginCapability<ISettingsApi?> _settingsCapability = new("settings:nfcore");
 
   private static SkyboxChanger? _Instance { get; set; }
 
@@ -141,6 +146,12 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
           }
         }
         EnvManager.InitializeSkyboxForPlayer(player);
+
+        // Load player settings
+        if (player.AuthorizedSteamID != null)
+        {
+          _ = LoadPlayerSettingsOnConnect(player.AuthorizedSteamID.SteamId64);
+        }
       });
       return HookResult.Continue;
     });
@@ -148,7 +159,12 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
     {
       EnvManager.OnPlayerLeave(slot);
       SpectatorManager.OnPlayerDisconnect(slot);
-      Service.Save(Utilities.GetPlayerFromSlot(slot)?.SteamID);
+      var player = Utilities.GetPlayerFromSlot(slot);
+      if (player != null && player.AuthorizedSteamID != null && Service != null)
+      {
+        Service.Save(player.AuthorizedSteamID.SteamId64);
+        Service._Storage?.InvalidateCache(player.AuthorizedSteamID.SteamId64);
+      }
     });
     Helper.Initialize();
   }
@@ -179,6 +195,45 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
       });
 
       return;
+    }
+
+    _settingsApi = _settingsCapability.Get();
+
+    if (_settingsApi == null)
+    {
+      Console.ForegroundColor = ConsoleColor.Yellow;
+      Console.WriteLine("[SkyboxChanger] WARNING: PlayerSettings API not found!");
+      Console.WriteLine("[SkyboxChanger] PlayerSettings is recommended for this plugin to save player preferences.");
+      Console.WriteLine("[SkyboxChanger] Please install PlayerSettingsCS2 from: https://github.com/NickFox007/PlayerSettingsCS2");
+      Console.WriteLine("[SkyboxChanger] Plugin will continue to work but settings won't be saved.");
+      Console.ResetColor();
+    }
+    else
+    {
+      // Reinitialize Service with settings API
+      Service = new Service(this, _settingsApi);
+    }
+  }
+
+  private async Task LoadPlayerSettingsOnConnect(ulong steamId)
+  {
+    if (_settingsApi == null || steamId == 0 || Service == null || Service._Storage == null)
+    {
+      return;
+    }
+
+    try
+    {
+      // Preload player settings to cache
+      var player = Utilities.GetPlayers().FirstOrDefault(p => p.IsValid && p.AuthorizedSteamID?.SteamId64 == steamId);
+      if (player != null)
+      {
+        await Service._Storage.GetPlayerSkydataAsync(steamId);
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError($"[SkyboxChanger] Failed to load settings for player {steamId}: {ex.Message}");
     }
   }
 
@@ -217,11 +272,19 @@ public class SkyboxChanger : BasePlugin, IPluginConfig<SkyboxConfig>
   public void OnConfigParsed(SkyboxConfig config)
   {
     Config = config;
-    if (Config.Version == 1)
+    if (Config.Version == 1 || Config.Version == 2)
     {
-      throw new Exception("Please update your config version. Changed: 'Database' field.");
+      throw new Exception("Please update your config version. Database configuration has been removed. PlayerSettings API is now used instead.");
     }
-    Service = new Service(this, Config.Database.Host, Config.Database.Port, Config.Database.User, Config.Database.Password, Config.Database.Database, Config.Database.TablePrefix);
+    // Service will be initialized in OnAllPluginsLoaded with settings API
+    if (_settingsApi != null)
+    {
+      Service = new Service(this, _settingsApi);
+    }
+    else
+    {
+      Service = new Service(this, null);
+    }
   }
 
   public void OnServerPrecacheResources(ResourceManifest manifest)
